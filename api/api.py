@@ -58,7 +58,6 @@ def create_visitors():
 def process_entries():
     # TODO (insert try / except here)
     if request.method == 'POST':
-        print(request.data)
         data = request.get_json(force=True)
         visitor = data["visitor"]
         first_name = visitor.get('firstName', None)
@@ -81,13 +80,16 @@ def get_visitors():
         signed_out --> Any user matches signed out status
     """
     
-    first_name = request.args.get("first_name")
-    last_name = request.args.get("last_name")
-    signed_out = request.args.get("signed_out")
+    first_name = request.args.get("firstName")
+    last_name = request.args.get("lastName")
+    signed_out = request.args.get("signedOut")
     visitors = []
     if not (first_name or last_name or signed_out):
         visitors = Visitor.query.all()
+    # TODO (Combine this?)
     elif first_name or last_name:
+        first_name = first_name if first_name else ''
+        last_name = last_name if last_name else ''
         visitors = Visitor.query.filter(Visitor.first_name.like(first_name) | Visitor.last_name.like(last_name)).all()
     else:
         visitors = Visitor.query.filter(Visitor.signed_out == signed_out).all()
