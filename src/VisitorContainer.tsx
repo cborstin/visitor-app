@@ -2,8 +2,10 @@ import React from 'react';
 import VisitorHeader from './VisitorHeader';
 import VisitorRow from './VisitorRow';
 import ScrollBar from './Scrollbar';
+import {Visitor} from './VisitorUtil';
 
 interface VisitorContainerProps {
+    visitors: Visitor[];
 }
 
 interface VisitorContainerState {
@@ -13,6 +15,19 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
         super(props);
     }
 
+    renderVisitorRows(){
+        const {visitors} = this.props;
+        return visitors.map(visitor => {
+            return <VisitorRow
+                firstName={visitor.firstName}
+                lastName={visitor.lastName}
+                notes={visitor.notes}
+                signedOut={visitor.isSignedOut}
+                date={visitor.date}
+            />
+        });
+    }
+
     render() {
       return <div className="mx-auto">
 
@@ -20,35 +35,7 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
         <table className="w-full">
         <VisitorHeader/>
           <tbody className="align-baseline">
-            {
-            <VisitorRow
-                name={"Esteban Arango"}
-                notes={"Frisbee and Vegan food"}
-                signedOut={true}
-                date={"04 / 24 / 2019 11:00pm"}
-            />
-            /* <tr>
-              <td className="p-2 border-t border-grey-light font-mono text-xs">Esteban Arango</td>
-              <td className="p-2 border-t border-grey-light font-mono text-xs">Frisbee and Vegan food</td>
-              <td className="p-1 border-t border-grey-light font-mono text-xs">04 / 24 / 2019 11:00pm</td>
-            </tr>
-            <tr>
-              <td className="p-2 border-t border-grey-light font-mono text-xs">Ryan Labouve</td>
-              <td className="p-2 border-t border-grey-light font-mono text-xs">Everything about Oklahoma</td>
-              <td className="p-1 border-t border-grey-light font-mono text-xs"><button className="btn btn--smaller btn--outline">Sign out</button></td>
-            </tr>
-            <tr>
-              <td className="p-2 border-t border-grey-light font-mono text-xs">David Kroondyk</td>
-              <td className="p-2 border-t border-grey-light font-mono text-xs">Tennis 🎾</td>
-              <td className="p-1 border-t border-grey-light font-mono text-xs">
-                <button className="btn disabled btn--smaller btn--outline">Signing out <i className="fas fa-spinner"></i></button>
-                </td>
-            </tr>
-            <tr>
-              <td className="p-2 border-t border-grey-light font-mono text-xs">Bill Heaton</td>
-              <td className="p-2 border-t border-grey-light font-mono text-xs">Motorcycles 🏍</td>
-              <td className="p-1 border-t border-grey-light font-mono text-xs">04 / 24 / 2019 11:00pm</td>
-            </tr> */}
+            {this.renderVisitorRows()}
           </tbody>
         </table> 
        <ScrollBar/>

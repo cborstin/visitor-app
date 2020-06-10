@@ -1,10 +1,13 @@
 import React from 'react';
 
+
+/*Fix these optional props*/
 interface VisitorRowProps {
-    name: string;
-    notes: string;
-    signedOut: boolean;
-    date?: string;
+    firstName?: string;
+    lastName?: string;
+    notes?: string;
+    signedOut?: boolean | undefined;
+    date?: string | undefined;
 }
 
 interface VisitorRowState {
@@ -18,7 +21,8 @@ export class VisitorRow extends React.Component<VisitorRowProps,  VisitorRowStat
         }
     }
 
-    private getVisitedRow(signedOut: boolean, date: string | undefined) {
+    /*TODO: Why the fuck do these types break down oh my fucking god*/
+    private getVisitedRow(signedOut: any, date: any) {
         const {signingOut} = this.state;
         if (signedOut && date) { // TODO: Change this date truthy value?
             return <td className="p-1 border-t border-grey-light font-mono text-xs">{date}</td>
@@ -34,9 +38,10 @@ export class VisitorRow extends React.Component<VisitorRowProps,  VisitorRowStat
     }
 
     render() {
-        const {signedOut, name, notes, date} = this.props;
+        const {signedOut, firstName, lastName, notes, date} = this.props;
+        const fullName = firstName + " " + lastName;
       return <tr>
-                <td className="p-2 border-t border-grey-light font-mono text-xs">{name}</td>
+                <td className="p-2 border-t border-grey-light font-mono text-xs">{fullName}</td>
                 <td className="p-2 border-t border-grey-light font-mono text-xs">{notes}</td>
                 {this.getVisitedRow(signedOut, date)}
             </tr>;

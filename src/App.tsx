@@ -12,22 +12,11 @@ interface AppState {
 export class App extends React.Component<{},  AppState> {
   constructor(props){
     super(props);
+    this.state = {
+      visitors: []
+    }
   }
 
-  // private getSampleData(): Promise<Visitor[]> {
-  //   return fetch('/sample_data')
-  //           .then(res => res.json())
-  //           .then(res => {
-  //                   /*TODO: Is this the right way to typecast*/
-  //                   let visitors: Visitor[] = [];
-  //                   res["visitors"].forEach(element => {
-  //                     visitors.push(new Visitor(element));
-  //                   });
-  //                   return visitors;
-  //           })
-  // }
-
-  /*TODO: Combine all these methods*/
   private getAllUsers(): Promise<Visitor[]> {
     return fetch('/entries')
             .then(res => res.json())
@@ -72,30 +61,33 @@ export class App extends React.Component<{},  AppState> {
             })
   }
 
+  private searchUsers(params: any): Promise<Visitor[]> {
+    const paramString = new URLSearchParams(params);
+    return fetch(`/entries?${paramString.toString()}`)
+            .then(res => res.json())
+            .then(res => {
+                    let visitors: Visitor[] = [];
+                    console.log(res);
+                    res["visitors"].forEach(element => {
+                      visitors.push(new Visitor(element));
+                    });
+                    return visitors;
+            });
+  }
+
   async componentDidMount() {
-    const users = await this.getAllUsers();
-    const visitor1 = users[0];
-    visitor1.firstName = "NATA";
-    let updatedList = await this.changeVisitor(visitor1);
-    let data = {
-      id: undefined,
-      firstName: "Idk",
-      lastName: "So tired",
-      date: "SO tired",
-      notes: "So tired",
-      isSignedOut: false,
-    }
-    const newUser = new Visitor(data);
-    updatedList = await this.addUser(newUser);
-    console.log("New user", updatedList)
+    const visitors = await this.getAllUsers();
+    this.setState({visitors: visitors});
+    return Promise.resolve();
   }
 
   render() {
+    const {visitors} = this.state;
     return (
       <div className="container mx-auto mt-12 p-8 border  min-h-screen max-w-3xl">
         <div className="flex-grow h-screen overflow-y-scroll">
             <SearchBar/>
-            <VisitorContainer/>
+            <VisitorContainer visitors={visitors}/>
         </div>
       </div>
     );
