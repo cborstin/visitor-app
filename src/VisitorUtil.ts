@@ -7,13 +7,13 @@ export class Visitor {
     public notes: string | undefined = undefined;
     public isSignedOut: boolean | undefined = undefined;
   
-    constructor(instanceData?: Visitor) {
+    constructor(instanceData?: any) {
       if (instanceData) {
         this.deserialize(instanceData);
       }
     }
   
-    private deserialize(instanceData: Visitor) {
+    private deserialize(instanceData: any) {
       // Note this.active will not be listed in keys since it's declared, but not defined
       const keys = Object.keys(this);
   

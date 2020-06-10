@@ -6,6 +6,7 @@ from sqlalchemy import or_
 # TODO: Move model into its own fileImports for model class
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
 from flask_appbuilder import Model
+import ast
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
@@ -30,6 +31,7 @@ class Visitor(db.Model):
            'id': self.id,
            'firstName':    self.first_name,
            'lastName': self.last_name,
+           'notes': self.notes,
            'date': self.date,
            'isSignedOut': self.signed_out,
        }
@@ -37,30 +39,32 @@ class Visitor(db.Model):
 db.create_all()
 db.session.commit()
 
-def get_response(visitors):
-    return jsonify(visitors=[visitor.serialize for visitor in visitors])
+def get_visitor_response(visitors):
+    print(visitors)
+    return jsonify(visitors=[visitor.serialize for visitor in visitors], status="ok")
+
+def get_error_response(err_msg):
+    return jsonify(err_msg=err_msg, success=False)
 
 # TODO (cborsting): Figure out the best place to put this sample data, move this to app creation part
 @app.route('/sample_data', methods=['GET'])
 def create_visitors():
-    # for visitor in sample_users:
-    #     print(visitor.first_name, visitor.last_name, visitor.notes)
-    #     new_visitor(visitor.first_name, visitor.last_name, visitor.notes)
-    return get_response(Visitor.query.all())
+    for visitor in sample_users:
+        new_visitor(visitor.first_name, visitor.last_name, visitor.notes)
+    return get_visitor_response(Visitor.query.all())
 
 
 @app.route('/entries', methods=['GET', 'POST', 'PATCH'])
 def process_entries():
     # TODO (insert try / except here)
     if request.method == 'POST':
-        try:
-            first_name = request.args.get('first_name')
-            last_name = request.args.get('last_name')
-            notes = request.args.get('notes')
-            new_visitor(first_name, last_name, notes)
-        except:
-            return (jsonify(success=False))
-        return (jsonify(success=True))
+        print(request.data)
+        data = request.get_json(force=True)
+        visitor = data["visitor"]
+        first_name = visitor.get('firstName', None)
+        last_name = visitor.get('lastName', None)
+        notes = visitor.get('notes', None)
+        return new_visitor(first_name, last_name, notes)
     elif request.method == 'GET':
         return get_visitors()
     elif request.method == 'PATCH':
@@ -87,7 +91,7 @@ def get_visitors():
         visitors = Visitor.query.filter(Visitor.first_name.like(first_name) | Visitor.last_name.like(last_name)).all()
     else:
         visitors = Visitor.query.filter(Visitor.signed_out == signed_out).all()
-    return get_response(visitors)
+    return get_visitor_response(visitors)
 
 def new_visitor(first_name, last_name, notes):
     # Error handling here for None created
@@ -99,22 +103,35 @@ def new_visitor(first_name, last_name, notes):
     )
     db.session.add(new_visitor)
     db.session.commit()
+    return get_visitor_response(Visitor.query.all())
 
 def update_visitor():
     # Add error handling here
-    visitor_id = request.args.get('id')
-    first_name = request.args.get('first_name')
-    last_name = request.args.get('last_name')
-    notes = request.args.get('notes')
-    signed_out = request.args.get('signed_out')
-    date = request.args.get('date')
+
+    #TODO: method to parse data
+    data = request.get_json(force=True)
+    visitor = data["visitor"]
+    
+    if not visitor:
+        return get_error_response("No visitor data received")
+
+    # TODO Figure out why these are returning None
+    visitor_id = visitor.get('id', None)
+    first_name = visitor.get('firstName', None)
+    last_name = visitor.get('lastName', None)
+    notes = visitor.get('notes', None)
+    signed_out = visitor.get('signedOut', None)
+    date = visitor.get('date', None)
+    print(visitor_id, first_name, last_name, notes, signed_out, date)
 
     # TODO (cborsting): Is there a cleaner way to do this?
     # Error handling here for none found
     visitor_to_update = Visitor.query.filter_by(id=visitor_id).first()
+    if not visitor_to_update:
+        get_error_response("Visitor id not found")
     visitor_to_update.first_name = first_name
     visitor_to_update.last_name = last_name
     visitor_to_update.notes = notes
     visitor_to_update.date = date
     db.session.commit() 
-    return (jsonify(success=True))
+    return get_visitor_response(Visitor.query.all())

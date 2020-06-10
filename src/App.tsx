@@ -14,7 +14,20 @@ export class App extends React.Component<{},  AppState> {
     super(props);
   }
 
-  
+  // private getSampleData(): Promise<Visitor[]> {
+  //   return fetch('/sample_data')
+  //           .then(res => res.json())
+  //           .then(res => {
+  //                   /*TODO: Is this the right way to typecast*/
+  //                   let visitors: Visitor[] = [];
+  //                   res["visitors"].forEach(element => {
+  //                     visitors.push(new Visitor(element));
+  //                   });
+  //                   return visitors;
+  //           })
+  // }
+
+  /*TODO: Combine all these methods*/
   private getAllUsers(): Promise<Visitor[]> {
     return fetch('/entries')
             .then(res => res.json())
@@ -24,42 +37,57 @@ export class App extends React.Component<{},  AppState> {
                     res["visitors"].forEach(element => {
                       visitors.push(new Visitor(element));
                     });
-                    console.log(res, res["visitors"]);
                     return visitors;
             })
   }
 
+  
   private changeVisitor(visitor: Visitor): Promise<Visitor[]> {
     return fetch('/entries', {
-      method: 'POST',
-      body: JSON.stringify({visitor})
-      })
+      method: 'PATCH',
+      body: JSON.stringify({visitor})})
             .then(res => res.json())
             .then(res => {
-                    /*TODO: Is this the right way to typecast*/
-                    return res as Visitor[]
+                    let visitors: Visitor[] = [];
+                    res["visitors"].forEach(element => {
+                      visitors.push(new Visitor(element));
+                    });
+                    return visitors;
             })
   }
 
-  // private filterUser(): Promise<Visitor[]> {
-  //   // For now, consider the data is stored on a static `users.json` file
-  //   return fetch('/sample_data')
-  //           // the JSON body is taken from the response
-  //           .then(res => res.json())
-  //           .then(res => {
-  //                   // The response has an `any` type, so we need to cast
-  //                   // it to the `User` type, and return it from the promise
-  //                   console.log(res);
-  //                   return res as Visitor[]
-  //           })
-  // }
+
+  private addUser(visitor: Visitor): Promise<Visitor[]> {
+    return fetch('/entries', {
+      method: 'POST',
+      body: JSON.stringify({visitor})})
+            .then(res => res.json())
+            .then(res => {
+                    let visitors: Visitor[] = [];
+                    console.log(res);
+                    res["visitors"].forEach(element => {
+                      visitors.push(new Visitor(element));
+                    });
+                    return visitors;
+            })
+  }
 
   async componentDidMount() {
     const users = await this.getAllUsers();
     const visitor1 = users[0];
-    // visitor1.firstName = "New first name";
-    // await this.changeVisitor(visitor1);
-    console.log(users);
+    visitor1.firstName = "NATA";
+    let updatedList = await this.changeVisitor(visitor1);
+    let data = {
+      id: undefined,
+      firstName: "Idk",
+      lastName: "So tired",
+      date: "SO tired",
+      notes: "So tired",
+      isSignedOut: false,
+    }
+    const newUser = new Visitor(data);
+    updatedList = await this.addUser(newUser);
+    console.log("New user", updatedList)
   }
 
   render() {
