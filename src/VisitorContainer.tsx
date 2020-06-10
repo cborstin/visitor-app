@@ -1,6 +1,7 @@
 import React from 'react';
 import VisitorHeader from './VisitorHeader';
 import VisitorRow from './VisitorRow';
+import NewVisitorComponent from './NewVisitorComponent';
 import {Visitor} from './VisitorUtil';
 
 interface VisitorContainerProps {
@@ -37,7 +38,7 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
             <div className="mt-8">
                 <table className="w-full">
                 <img src="https://dashboard.envoy.com/assets/images/logo-small-red-ba0cf4a025dd5296cf6e002e28ad38be.svg" alt="Envoy Logo" width="31" className="py3 block"/> 
-                <button className="btn  btn--brand float-right ml-2"><i className="fas fa-user"></i>&nbsp;&nbsp;New visitor</button>
+                {<NewVisitorComponent processVisitorCallback={processVisitorCallback}/>}
                 <VisitorHeader/>
                 <tbody className="align-baseline">
                     {this.renderVisitorRows()}

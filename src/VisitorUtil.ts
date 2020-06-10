@@ -53,7 +53,7 @@ export function changeVisitor(visitor: Visitor, callback: any){
             })
   }
 
-
+/*TODO: change this name*/
 export function addUser(visitor: Visitor, callback: any) {
     return fetch('/entries', {
       method: 'POST',
