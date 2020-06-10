@@ -3,7 +3,7 @@ import './App.scss';
 import SearchBar from './SearchBar';
 import VisitorContainer from './VisitorContainer';
 import {_} from 'lodash';
-import {Visitor} from './VisitorUtil';
+import {Visitor, getAllUsers} from './VisitorUtil';
 
 interface AppState {
   visitors: Visitor[];
@@ -15,69 +15,15 @@ export class App extends React.Component<{},  AppState> {
     this.state = {
       visitors: []
     }
+    this.updateVisitorState = this.updateVisitorState.bind(this)
   }
 
-  private getAllUsers(): Promise<Visitor[]> {
-    return fetch('/entries')
-            .then(res => res.json())
-            .then(res => {
-                    /*TODO: Is this the right way to typecast*/
-                    let visitors: Visitor[] = [];
-                    res["visitors"].forEach(element => {
-                      visitors.push(new Visitor(element));
-                    });
-                    return visitors;
-            })
-  }
-
-  
-  private changeVisitor(visitor: Visitor): Promise<Visitor[]> {
-    return fetch('/entries', {
-      method: 'PATCH',
-      body: JSON.stringify({visitor})})
-            .then(res => res.json())
-            .then(res => {
-                    let visitors: Visitor[] = [];
-                    res["visitors"].forEach(element => {
-                      visitors.push(new Visitor(element));
-                    });
-                    return visitors;
-            })
-  }
-
-
-  private addUser(visitor: Visitor): Promise<Visitor[]> {
-    return fetch('/entries', {
-      method: 'POST',
-      body: JSON.stringify({visitor})})
-            .then(res => res.json())
-            .then(res => {
-                    let visitors: Visitor[] = [];
-                    console.log(res);
-                    res["visitors"].forEach(element => {
-                      visitors.push(new Visitor(element));
-                    });
-                    return visitors;
-            })
-  }
-
-  private searchUsers(params: any): Promise<Visitor[]> {
-    const paramString = new URLSearchParams(params);
-    return fetch(`/entries?${paramString.toString()}`)
-            .then(res => res.json())
-            .then(res => {
-                    let visitors: Visitor[] = [];
-                    console.log(res);
-                    res["visitors"].forEach(element => {
-                      visitors.push(new Visitor(element));
-                    });
-                    return visitors;
-            });
+  updateVisitorState = (visitors: Visitor[]) => {
+    this.setState({visitors: visitors});
   }
 
   async componentDidMount() {
-    const visitors = await this.getAllUsers();
-    this.setState({visitors: visitors});
+    await getAllUsers(this.updateVisitorState);
     return Promise.resolve();
   }
 
@@ -86,8 +32,11 @@ export class App extends React.Component<{},  AppState> {
     return (
       <div className="container mx-auto mt-12 p-8 border  min-h-screen max-w-3xl">
         <div className="flex-grow h-screen overflow-y-scroll">
-            <SearchBar/>
-            <VisitorContainer visitors={visitors}/>
+        <SearchBar processVisitorCallback={this.updateVisitorState}/>
+            <VisitorContainer 
+              visitors={visitors} 
+              processVisitorCallback={this.updateVisitorState}
+            />
         </div>
       </div>
     );

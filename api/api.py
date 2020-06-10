@@ -45,7 +45,6 @@ db.create_all()
 db.session.commit()
 
 def get_visitor_response(visitors):
-    print(visitors)
     return jsonify(visitors=[visitor.serialize for visitor in visitors], status="ok")
 
 def get_error_response(err_msg):
@@ -85,16 +84,17 @@ def get_visitors():
     """
     
     name = request.args.get("name")
-    signed_out = request.args.get("signedOut")
-    visitors = []
-    if not (name or signed_out):
-        visitors = Visitor.query.all()
-    # TODO (Combine this?)
-    elif name:
+    signed_out = request.args.get("isSignedOut")
+    visitors = Visitor.query
+
+    if name and len(name) > 0:
+        print(name)
         name_string = search = "%{}%".format(name)
-        visitors = Visitor.query.filter(Visitor.full_name.like(name_string)).all()
-    else:
-        visitors = Visitor.query.filter(Visitor.signed_out == signed_out).all()
+        visitors = visitors.filter(Visitor.full_name.like(name_string)) 
+    if signed_out == "true":
+        print(signed_out)
+        visitors = Visitor.query.filter(Visitor.signed_out == True)
+    visitors = visitors.all()
     return get_visitor_response(visitors)
 
 def new_visitor(first_name, last_name, notes):
@@ -126,7 +126,6 @@ def update_visitor():
     notes = visitor.get('notes', None)
     signed_out = visitor.get('isSignedOut', False)
     date = visitor.get('date', None)
-    print(visitor_id, first_name, last_name, notes, signed_out, date)
 
     # TODO (cborsting): Is there a cleaner way to do this?
     # Error handling here for none found
