@@ -5,6 +5,7 @@ import VisitorContainer from './VisitorContainer';
 import {_} from 'lodash';
 import {Visitor, getAllUsers} from './VisitorUtil';
 import "bootstrap/dist/css/bootstrap.min.css";
+import NewVisitorComponent from './NewVisitorComponent';
 
 interface AppState {
   visitors: Visitor[];

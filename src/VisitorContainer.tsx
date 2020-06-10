@@ -1,9 +1,10 @@
 import React from 'react';
-import VisitorHeader from './VisitorHeader';
 import VisitorSignOutComponent from './VisitorSignOutComponent';
-import NewVisitorComponent from './NewVisitorComponent';
 import {Visitor} from './VisitorUtil';
-import BootstrapTable from 'react-bootstrap-table-next';  
+import BootstrapTable from 'react-bootstrap-table-next'; 
+import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';   
+import paginationFactory from 'react-bootstrap-table2-paginator'; 
+
 
 interface VisitorContainerProps {
     visitors: Visitor[];
@@ -12,20 +13,19 @@ interface VisitorContainerProps {
 
 interface VisitorContainerState {
     columns: any;
+    signedOutChecked: boolean;
 }
 export class VisitorContainer extends React.Component<VisitorContainerProps,  VisitorContainerState> {
     constructor(props: VisitorContainerProps){
         super(props);
         this.cellButton = this.cellButton.bind(this);
         this.state = {
+            signedOutChecked: false,
             columns: [
-            {  
-                dataField: 'Id',
-                text: 'Id',
-            }, 
             {  
                 dataField: 'Name',
                 text: 'Name',
+                filter: textFilter(),
             }, 
             {  
                 dataField: 'Notes',
@@ -33,32 +33,27 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
             },
             {  
                 dataField: 'visitor',
+                formatter: this.cellButton,
                 text: 'Signed Out',
-                formatter: this.cellButton
-            }]
+            }
+            ]
         }
     }
      
     cellButton = (cell, row) => {
         const {processVisitorCallback} = this.props;
-        if (cell) {
-            console.log("Returned component");
             return (
                 <VisitorSignOutComponent 
                     visitor={cell}
                     processVisitorCallback={processVisitorCallback}
                 />
              );
-        }
-        console.log("NOT COMPONENT", cell);
-         
       }
 
     getVisitorData(){
-        const {visitors, processVisitorCallback} = this.props;
+        const {visitors} = this.props;
         return visitors.map(visitor => {
             return {
-                Id: visitor.id,
                 Name: visitor.firstName + " " + visitor.lastName,
                 Notes: visitor.notes,
                 Date: visitor.date,
@@ -69,16 +64,36 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
 
     render() {
         const {processVisitorCallback} = this.props;
+        let visitorData = this.getVisitorData();
+        console.log(visitorData);
+        // visitorData = []
+        const options = {  
+            page: 2,   
+            sizePerPageList: [ {  
+                text: '5', value: 5  
+                }, {  
+                text: '10', value: 10  
+                }, {  
+                text: 'All', value: visitorData.length
+                } ],    
+                sizePerPage: 5,   
+                pageStartIndex: 0,   
+                paginationSize: 3,    
+                prePage: 'Prev',   
+                nextPage: 'Next',   
+                firstPage: 'First',   
+                lastPage: 'Last',   
+            };
       return (
-        <div className="mx-auto">
-            <div className="mt-8">
-                    <BootstrapTable   
-                    hover  
-                    keyField='id'   
-                    data={ this.getVisitorData()}   
-                    columns={ this.state.columns } />
+          <div>
+            <BootstrapTable   
+                hover  
+                keyField='id'   
+                data={visitorData}   
+                columns={ this.state.columns } 
+                filter={filterFactory()}
+                pagination={paginationFactory(options)}/>
             </div>
-        </div>
       );
       
     }

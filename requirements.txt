@@ -1,4 +1,6 @@
 react-bootstrap
 sqlalchemy
 flask_appbuilder
-npm install --save bootstrap  
+npm install react-bootstrap-table2-paginator --save
+npm install --save bootstrap
+npm install react-bootstrap-table2-filter --save  
