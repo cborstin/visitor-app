@@ -7,6 +7,7 @@ from sqlalchemy import or_
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
 from flask_appbuilder import Model
 import ast
+from sqlalchemy.ext.hybrid import hybrid_property
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
@@ -35,6 +36,10 @@ class Visitor(db.Model):
            'date': self.date,
            'isSignedOut': self.signed_out,
        }
+
+    @hybrid_property
+    def full_name(self):
+        return self.first_name + " " +  self.last_name
 
 db.create_all()
 db.session.commit()
@@ -75,22 +80,19 @@ def get_visitors():
     """
     Searchs through all visitors in database and returns serialized result.
     Possible search parameters:
-        first_name --> Any first_name contains substring
-        last_name --> Any last_name contains substring
+        name --> Substring matching any part of name
         signed_out --> Any user matches signed out status
     """
     
-    first_name = request.args.get("firstName")
-    last_name = request.args.get("lastName")
+    name = request.args.get("name")
     signed_out = request.args.get("signedOut")
     visitors = []
-    if not (first_name or last_name or signed_out):
+    if not (name or signed_out):
         visitors = Visitor.query.all()
     # TODO (Combine this?)
-    elif first_name or last_name:
-        first_name = first_name if first_name else ''
-        last_name = last_name if last_name else ''
-        visitors = Visitor.query.filter(Visitor.first_name.like(first_name) | Visitor.last_name.like(last_name)).all()
+    elif name:
+        name_string = search = "%{}%".format(name)
+        visitors = Visitor.query.filter(Visitor.full_name.like(name_string)).all()
     else:
         visitors = Visitor.query.filter(Visitor.signed_out == signed_out).all()
     return get_visitor_response(visitors)
@@ -122,7 +124,7 @@ def update_visitor():
     first_name = visitor.get('firstName', None)
     last_name = visitor.get('lastName', None)
     notes = visitor.get('notes', None)
-    signed_out = visitor.get('signedOut', None)
+    signed_out = visitor.get('isSignedOut', False)
     date = visitor.get('date', None)
     print(visitor_id, first_name, last_name, notes, signed_out, date)
 
@@ -135,5 +137,6 @@ def update_visitor():
     visitor_to_update.last_name = last_name
     visitor_to_update.notes = notes
     visitor_to_update.date = date
+    visitor_to_update.signed_out = signed_out
     db.session.commit() 
     return get_visitor_response(Visitor.query.all())
