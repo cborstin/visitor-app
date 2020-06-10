@@ -1,3 +1,4 @@
 react-bootstrap
 sqlalchemy
 flask_appbuilder
+npm install --save bootstrap  

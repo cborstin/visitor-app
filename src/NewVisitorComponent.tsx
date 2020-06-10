@@ -5,7 +5,6 @@ import {
     ModalTitle, 
     ModalBody, 
     ModalFooter } from 'react-bootstrap';
-import "bootstrap/dist/css/bootstrap.min.css";
 import {Visitor, addUser} from './VisitorUtil';
 
 interface NewVisitorComponentProps {

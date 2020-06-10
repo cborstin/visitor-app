@@ -1,8 +1,9 @@
 import React from 'react';
 import VisitorHeader from './VisitorHeader';
-import VisitorRow from './VisitorRow';
+import VisitorSignOutComponent from './VisitorSignOutComponent';
 import NewVisitorComponent from './NewVisitorComponent';
 import {Visitor} from './VisitorUtil';
+import BootstrapTable from 'react-bootstrap-table-next';  
 
 interface VisitorContainerProps {
     visitors: Visitor[];
@@ -10,24 +11,59 @@ interface VisitorContainerProps {
 }
 
 interface VisitorContainerState {
+    columns: any;
 }
 export class VisitorContainer extends React.Component<VisitorContainerProps,  VisitorContainerState> {
     constructor(props: VisitorContainerProps){
         super(props);
+        this.cellButton = this.cellButton.bind(this);
+        this.state = {
+            columns: [
+            {  
+                dataField: 'Id',
+                text: 'Id',
+            }, 
+            {  
+                dataField: 'Name',
+                text: 'Name',
+            }, 
+            {  
+                dataField: 'Notes',
+                text: 'Notes',
+            },
+            {  
+                dataField: 'visitor',
+                text: 'Signed Out',
+                formatter: this.cellButton
+            }]
+        }
     }
+     
+    cellButton = (cell, row) => {
+        const {processVisitorCallback} = this.props;
+        if (cell) {
+            console.log("Returned component");
+            return (
+                <VisitorSignOutComponent 
+                    visitor={cell}
+                    processVisitorCallback={processVisitorCallback}
+                />
+             );
+        }
+        console.log("NOT COMPONENT", cell);
+         
+      }
 
-    renderVisitorRows(){
+    getVisitorData(){
         const {visitors, processVisitorCallback} = this.props;
         return visitors.map(visitor => {
-            return <VisitorRow
-                id={visitor.id}
-                firstName={visitor.firstName}
-                lastName={visitor.lastName}
-                notes={visitor.notes}
-                signedOut={visitor.isSignedOut}
-                date={visitor.date}
-                processVisitorCallback={processVisitorCallback}
-            />
+            return {
+                Id: visitor.id,
+                Name: visitor.firstName + " " + visitor.lastName,
+                Notes: visitor.notes,
+                Date: visitor.date,
+                visitor: visitor,
+            }
         });
     }
 
@@ -36,14 +72,11 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
       return (
         <div className="mx-auto">
             <div className="mt-8">
-                <table className="w-full">
-                <img src="https://dashboard.envoy.com/assets/images/logo-small-red-ba0cf4a025dd5296cf6e002e28ad38be.svg" alt="Envoy Logo" width="31" className="py3 block"/> 
-                {<NewVisitorComponent processVisitorCallback={processVisitorCallback}/>}
-                <VisitorHeader/>
-                <tbody className="align-baseline">
-                    {this.renderVisitorRows()}
-                </tbody>
-                </table> 
+                    <BootstrapTable   
+                    hover  
+                    keyField='id'   
+                    data={ this.getVisitorData()}   
+                    columns={ this.state.columns } />
             </div>
         </div>
       );
