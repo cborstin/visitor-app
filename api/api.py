@@ -1,48 +1,15 @@
 import time
-from flask import request, make_response, Flask, jsonify
+from flask import request, make_response, Flask, jsonify, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 # from .sample_data import sample_users
 from sqlalchemy import or_
 # TODO: Move model into its own fileImports for model class
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
 from flask_appbuilder import Model
-import ast
 from sqlalchemy.ext.hybrid import hybrid_property
+from visitor import Visitor
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-db = SQLAlchemy(app)
-
-
-#TODO (Figure out how to move this)
-class Visitor(db.Model):
-    __tablename__ = 'visitors'
-    id = db.Column(Integer,primary_key=True)
-    # TODO (cborsting): See default values for unique
-    first_name = db.Column(String(50), unique = False, nullable=False)
-    last_name = db.Column(String(50), unique = False, nullable=False)
-    date = db.Column(String(50), unique = False, nullable=True)
-    notes = db.Column(String(50), unique = False, nullable=True)
-    signed_out = db.Column(Boolean, unique = False, nullable=False)
-
-    @property
-    def serialize(self):
-       """Return object data in easily serializable format"""
-       return {
-           'id': self.id,
-           'firstName':    self.first_name,
-           'lastName': self.last_name,
-           'notes': self.notes,
-           'date': self.date,
-           'isSignedOut': self.signed_out,
-       }
-
-    @hybrid_property
-    def full_name(self):
-        return self.first_name + " " +  self.last_name
-
-db.create_all()
-db.session.commit()
+blueprint = Blueprint('simple_page', __name__)
 
 def get_visitor_response(visitors):
     return jsonify(visitors=[visitor.serialize for visitor in visitors], status="ok")
@@ -51,14 +18,14 @@ def get_error_response(err_msg):
     return jsonify(err_msg=err_msg, success=False)
 
 # TODO (cborsting): Figure out the best place to put this sample data, move this to app creation part
-@app.route('/sample_data', methods=['GET'])
+@blueprint.route('/sample_data', methods=['GET'])
 def create_visitors():
     for visitor in sample_users:
         new_visitor(visitor.first_name, visitor.last_name, visitor.notes)
     return get_visitor_response(Visitor.query.all())
 
 
-@app.route('/entries', methods=['GET', 'POST', 'PATCH'])
+@blueprint.route('/entries', methods=['GET', 'POST', 'PATCH'])
 def process_entries():
     # TODO (insert try / except here)
     if request.method == 'POST':

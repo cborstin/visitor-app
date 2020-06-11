@@ -1,4 +1,4 @@
-from .app import db
+from app import db
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
 from flask_appbuilder import Model
 from sqlalchemy.ext.hybrid import hybrid_property
