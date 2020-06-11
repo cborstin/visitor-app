@@ -40,21 +40,21 @@ class MyTest(TestCase):
             db.session.commit()
         self.client = self.app.test_client()
         self.visitor_one = {
-            'date': visitor[0].date, 
-            'firstName': visitor[0].firstName, 
+            'date': visitors[0].date, 
+            'firstName': visitors[0].first_name, 
             'id': 1, 
-            'isSignedOut': visitor[0].signed_out, 
-            'lastName': visitor[0].last_name, 
-            'notes': visitor[0].notes
+            'isSignedOut': visitors[0].signed_out, 
+            'lastName': visitors[0].last_name, 
+            'notes': visitors[0].notes
         }
 
         self.visitor_two = {
-            'date': visitor[1].date, 
-            'firstName': visitor[1].first_name,
+            'date': visitors[1].date, 
+            'firstName': visitors[1].first_name,
             'id': 1, 
-            'isSignedOut': visitor[1].signed_out, 
-            'lastName': visitor[1].last_name, 
-            'notes': visitor[1].notes
+            'isSignedOut': visitors[1].signed_out, 
+            'lastName': visitors[1].last_name, 
+            'notes': visitors[1].notes
         }
 
 
