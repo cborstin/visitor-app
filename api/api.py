@@ -81,7 +81,7 @@ def update_visitor():
     visitor = data["visitor"]
     
     if not visitor:
-        return get_error_response("No visitor data received")
+        return get_error_response("Could not find visitor")
 
     # TODO Figure out why these are returning None
     visitor_id = visitor.get('id', None)

@@ -5,8 +5,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 class Visitor(db.Model):
     __tablename__ = 'visitors'
-    id = db.Column(Integer,primary_key=True)
-    # TODO (cborsting): See default values for unique
+    id = db.Column(Integer, primary_key=True)
     first_name = db.Column(String(50), unique = False, nullable=False)
     last_name = db.Column(String(50), unique = False, nullable=False)
     date = db.Column(String(50), unique = False, nullable=True)
