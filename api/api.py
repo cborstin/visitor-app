@@ -59,7 +59,6 @@ def get_visitors():
     visitors = Visitor.query
 
     if name and len(name) > 0:
-        print(name)
         name_string = search = "%{}%".format(name)
         visitors = visitors.filter(Visitor.full_name.like(name_string)) 
     if signed_out == "true":

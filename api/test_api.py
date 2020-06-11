@@ -1,54 +1,59 @@
 from flask_testing import TestCase
 from flask_sqlalchemy import SQLAlchemy
-from app import create_test_app
 from visitor import Visitor
+from app import app as app_template
 from api import blueprint
 import pdb
 
 
-TEST_SQLALCHEMY_DATABASE_URI = "sqlite:///test.sqlite"
 db = SQLAlchemy()
 
 class MyTest(TestCase):
 
     def create_app(self):
-        app = create_test_app(db)
-        app.register_blueprint(blueprint)
-        return app
+        app_template.register_blueprint(blueprint)
+        return app_template
 
-    def setUp(self):
-        app = self.create_app()
-        db.create_all()
-        ## create visitors:
-        visitor = Visitor(
+    def getVisitors(self):
+        return [
+            Visitor(
             first_name='joe', 
             last_name='last name',
             notes='notes',
             date=None,
             signed_out=False
-        )
-        visitor2 = Visitor(
-            first_name='jane', 
-            last_name='last name',
-            notes='notes',
-            date=None,
-            signed_out=False
-        )
-        db.session.add(visitor)
-        db.session.add(visitor2)
-        db.session.commit()
-        self.app = app
-        self.client = app.test_client()
-        self.db = db
+            ),
+            Visitor(
+                first_name='jane', 
+                last_name='last name',
+                notes='notes',
+                date=None,
+                signed_out=False
+            )
+        ]
+
+    def setUp(self):
+        self.app = self.create_app()
+        ## create visitors:
+        db.session.query(Visitor).delete()
+        db.create_all()
+        visitors = self.getVisitors()
+        for visitor in visitors:
+            db.session.add(visitor)
+            db.session.commit()
+        self.client = self.app.test_client()
 
     def tearDown(self):
-        self.db.session.remove()
-        self.db.drop_all()
+        db.drop_all()
+        db.session.commit()
+        db.session.close()
 
     def test_get_all_visitors(self):
-        visitors = Visitor.query.all()
+        visitors = db.session.query(Visitor).all()
         assert len(visitors) == 2, 'Expect all visitors to be returned'
 
-    def test_get_all_visitors(self):
+    def test_get_all_entries(self):
         resp = self.client.get('/entries')
+        jsonDate = resp.get_json()
+        assert resp['status'] == 'ok'
         pdb.set_trace()
