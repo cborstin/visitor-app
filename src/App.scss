@@ -146,6 +146,11 @@ input:focus + label.focus\:border-red {border-color: $color-red;}
 
 .bg-black           {background-color: $color-black;}
 
+
+$theme-colors: (
+  "primary": $color-brand,
+);
+
 // Color utilities
 // --------------------------------------------------
 .opacity-0 {
@@ -164,94 +169,6 @@ input:focus + label.focus\:border-red {border-color: $color-red;}
   opacity: 1;
 }
 
-
-// Buttons
-// ------------------------------------------------
-.btn {
-  display: inline-block;
-  border-radius: 3px;
-  font-size: 12px;
-  font-variant-numeric: lining-nums;
-  padding: 14px 20px 12px;
-  background-color: $color-grayDarker;
-  color: $color-white;
-  text-decoration: none !important;
-  border: none;
-  text-align: center;
-  transition: all 0.2s;
-  cursor: pointer;
-  overflow: unset;
-  line-height: 1;
-  white-space: nowrap;
-
-  &:hover {
-    background-color: rgba($color-grayDarker, 0.9);
-    color: $color-white;
-  }
-
-  &:active {
-    background-color: $color-grayDarker;
-    color: $color-white;
-  }
-
-  &:focus {
-    cursor: pointer;
-    outline: none; /* bad for keyboard navigation */
-    color: $color-white;
-  }
-}
-
-
-.btn--outline {
-  background: transparent;
-  box-shadow: 0 0 0 1px $color-grayLight inset;
-  color: $color-grayDarker;
-
-  &:hover {
-    background: transparent;
-    box-shadow: 0 0 0 1px $color-grayMedium inset;
-    color: $color-grayDarker;
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 1px $color-grayMedium inset;
-    color: $color-grayDarker;
-    cursor: pointer;
-    outline: none; /* bad for keyboard navigation */
-  }
-
-  &:active {
-    background: transparent;
-    box-shadow: 0 0 0 1px $color-grayMedium inset;
-    color: $color-grayDarker;
-  }
-}
-
-.btn--small {
-  padding: 10px 10px 9px;
-  font-size: 12px;
-
-  &.flex-auto {
-    padding: 10px 10px 9px;
-  }
-}
-
-.btn--smaller {
-  padding: 8px;
-  font-size: 11px;
-  min-width: 40px;
-}
-
-.btn--smallest {
-  padding: 6px 16px;
-  font-size: 11px;
-  min-width: 40px;
-}
-
-.btn.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
 
 .btn--brand {
   background: $color-brand;
@@ -272,4 +189,27 @@ input:focus + label.focus\:border-red {border-color: $color-red;}
     background: $color-brandDarker;
     color: $color-white;
   }
+}
+
+.signout-checkbox {
+  margin-left: 10px;
+}
+
+.visitor-table-header {
+  border: 0;
+}
+
+.container {
+  margin: 20px;
+  border: 1px;
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 50px;
+}
+
+.table th { border-top: none; }
+
+.filter-label{
+  margin-left: 10px;
 }

@@ -1,17 +1,17 @@
 import React from 'react';
 import {searchUsers} from './VisitorUtil';
 
-interface SearchBarProps {
+interface SignedOutCheckboxProps {
     processVisitorCallback: any; //TODO type this
 }
 
-interface SearchBarState {
+interface SignedOutCheckboxState {
     name: string;
     isSignedOutChecked: boolean;
 }
 
-export class SearchBar extends React.Component<SearchBarProps,  SearchBarState> {
-    constructor(props: SearchBarProps){
+export class SignedOutCheckbox extends React.Component<SignedOutCheckboxProps,  SignedOutCheckboxState> {
+    constructor(props: SignedOutCheckboxProps){
         super(props);
         this.filterSearch = this.filterSearch.bind(this);
         this.onChange = this.onChange.bind(this);
@@ -32,7 +32,6 @@ export class SearchBar extends React.Component<SearchBarProps,  SearchBarState> 
             name: this.state.name,
             isSignedOut: isSignedOutChecked,
         }
-        console.log(params);
         searchUsers(params, processVisitorCallback);
         
     }
@@ -54,22 +53,14 @@ export class SearchBar extends React.Component<SearchBarProps,  SearchBarState> 
 
     render() {
       return (
-        <div>
-            <form onSubmit={this.filterSearch}>
-                <input type="text" onChange = {this.onChange} value={this.state.name} className="p-2 text-sm border float-right max-w-xs w-full" placeholder="Search by name"/>
-                <input type="submit" value="Submit" />
-            </form>
-            <label>
-                <input
-                    type="checkbox"
-                    defaultChecked={this.state.isSignedOutChecked}
-                    ref="complete"
-                    onChange={this.handleCheckedChange}
-                />
-                {"Only show signed out visitors"}
-            </label>
-        </div>
+            <input
+                className="signout-checkbox"
+                type="checkbox"
+                defaultChecked={this.state.isSignedOutChecked}
+                ref="complete"
+                onChange={this.handleCheckedChange}
+            />
       ) 
     }
   }
-export default SearchBar;
+export default SignedOutCheckbox;

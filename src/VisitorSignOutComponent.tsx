@@ -1,5 +1,6 @@
 import React from 'react';
 import { Visitor, changeVisitor} from './VisitorUtil';
+import { Button } from 'react-bootstrap';
 
 
 /*Fix these optional props*/
@@ -56,10 +57,12 @@ export class VisitorSignOutComponent extends React.Component<VisitorSignOutCompo
           return visitor.date;
       } else if (signingOut) {
           return (
-              <button className="btn disabled btn--smaller btn--outline">Signing out <i className="fas fa-spinner"></i></button>
+              <Button variant="outline-secondary">Signing out <i className="fas fa-spinner"></i></Button>
           );
       } else {
-          return (<button className="btn btn--smaller btn--outline" onClick={this.signOutVisitor}>Sign out</button>);
+          return (
+          <Button variant="outline-secondary" onClick={this.signOutVisitor}>Sign out</Button>
+          );
       }  
   }
     }

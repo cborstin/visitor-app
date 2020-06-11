@@ -1,9 +1,11 @@
 import React from 'react';
 import VisitorSignOutComponent from './VisitorSignOutComponent';
 import {Visitor} from './VisitorUtil';
-import BootstrapTable from 'react-bootstrap-table-next'; 
+import NewVisitorComponent from './NewVisitorComponent';
+import SignedOutCheckbox from './SignedOutCheckbox';
+import BootstrapTable, {TableHeaderColumn} from 'react-bootstrap-table-next'; 
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';   
-import paginationFactory from 'react-bootstrap-table2-paginator'; 
+import paginationFactory, { PaginationProvider, PaginationListStandalone } from 'react-bootstrap-table2-paginator';
 
 
 interface VisitorContainerProps {
@@ -19,12 +21,13 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
     constructor(props: VisitorContainerProps){
         super(props);
         this.cellButton = this.cellButton.bind(this);
+        this.customSignedOutHeader = this.customSignedOutHeader.bind(this);
         this.state = {
             signedOutChecked: false,
             columns: [
             {  
                 dataField: 'Name',
-                text: 'Name',
+                text: 'Name:',
                 filter: textFilter(),
             }, 
             {  
@@ -34,7 +37,7 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
             {  
                 dataField: 'visitor',
                 formatter: this.cellButton,
-                text: 'Signed Out',
+                headerFormatter: this.customSignedOutHeader,
             }
             ]
         }
@@ -49,6 +52,17 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
                 />
              );
       }
+
+    customSignedOutHeader() {
+        const {processVisitorCallback} = this.props;
+        return (
+            <div>
+            Signed Out
+            <SignedOutCheckbox processVisitorCallback={processVisitorCallback}/>
+        </div>
+        );
+
+    }
 
     getVisitorData(){
         const {visitors} = this.props;
@@ -65,37 +79,45 @@ export class VisitorContainer extends React.Component<VisitorContainerProps,  Vi
     render() {
         const {processVisitorCallback} = this.props;
         let visitorData = this.getVisitorData();
-        console.log(visitorData);
-        // visitorData = []
-        const options = {  
-            page: 2,   
-            sizePerPageList: [ {  
-                text: '5', value: 5  
-                }, {  
-                text: '10', value: 10  
-                }, {  
-                text: 'All', value: visitorData.length
-                } ],    
-                sizePerPage: 5,   
-                pageStartIndex: 0,   
-                paginationSize: 3,    
-                prePage: 'Prev',   
-                nextPage: 'Next',   
-                firstPage: 'First',   
-                lastPage: 'Last',   
-            };
+        const options = {
+            custom: true,
+            totalSize: visitorData.length
+          };
       return (
-          <div>
-            <BootstrapTable   
-                hover  
-                keyField='id'   
-                data={visitorData}   
-                columns={ this.state.columns } 
-                filter={filterFactory()}
-                pagination={paginationFactory(options)}/>
-            </div>
+            <PaginationProvider
+                pagination={ paginationFactory(options) }
+            >
+            {
+                ({
+                paginationProps,
+                paginationTableProps
+                }) => (
+                <div>
+                    <BootstrapTable   
+                        keyField='id'   
+                        classes="visitor-table borderless"
+                        headerWrapperClasses="visitor-table-header"
+                        bordered={false} 
+                        data={visitorData}   
+                        columns={ this.state.columns } 
+                        filter={filterFactory()}
+                        { ...paginationTableProps }>
+                        </BootstrapTable>
+                        <div className="float-left">
+                            <NewVisitorComponent processVisitorCallback={processVisitorCallback}/>
+                        </div>
+                        <div className="float-right">
+                            <PaginationListStandalone
+                                
+                            { ...paginationProps }
+                        />
+                    </div>
+                </div>
+                )
+            }
+            </PaginationProvider>
+                
       );
-      
     }
   }
 export default VisitorContainer;

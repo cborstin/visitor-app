@@ -100,9 +100,9 @@ export class NewVisitorComponent extends React.Component<NewVisitorComponentProp
     render() {
       return (
         <div>
-            <button className="btn  btn--brand float-right ml-2" onClick={this.showModal}>
+            <Button className="new-visitor-btn" variant="primary" onClick={this.showModal}>
                 <i className="fas fa-user"></i>&nbsp;&nbsp;New visitor
-            </button>
+            </Button>
             {this.renderModal()}
         </div>
       );

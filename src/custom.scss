@@ -1,0 +1,9 @@
+$color-redLighter: #EF3934; // 3:1
+
+$color-brand:   $color-redLighter;
+$theme-colors: (
+  "primary": $color-brand,
+);
+
+// Import Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap.scss';
