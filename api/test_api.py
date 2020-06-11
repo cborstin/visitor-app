@@ -17,18 +17,18 @@ class MyTest(TestCase):
     def getVisitors(self):
         return [
             Visitor(
-            first_name='joe', 
-            last_name='last name',
-            notes='notes',
-            date=None,
-            signed_out=False
+                first_name='joe', 
+                last_name='last name',
+                notes='notes',
+                date=None,
+                signed_out=False
             ),
             Visitor(
                 first_name='jane', 
                 last_name='last name',
                 notes='notes',
                 date=None,
-                signed_out=False
+                signed_out=True
             )
         ]
 
@@ -42,6 +42,26 @@ class MyTest(TestCase):
             db.session.add(visitor)
             db.session.commit()
         self.client = self.app.test_client()
+        self.visitor_one = {
+            'date': None, 
+            'firstName': 
+            'joe', 'id': 1, 
+            'isSignedOut': False, 
+            'lastName': 'last name', 
+            'notes': 'notes'
+        }
+
+        self.visitor_two = {
+            'date': None, 
+            'firstName': 
+            'jane', 
+            'id': 2, 
+            'isSignedOut': False, 
+            'lastName': 
+            'last name', 
+            'notes': 'notes'
+        }
+
 
     def tearDown(self):
         db.drop_all()
@@ -50,10 +70,49 @@ class MyTest(TestCase):
 
     def test_get_all_visitors(self):
         visitors = db.session.query(Visitor).all()
-        assert len(visitors) == 2, 'Expect all visitors to be returned'
+        assert len(visitors) == 2, 'Visitors are properly created'
 
     def test_get_all_entries(self):
         resp = self.client.get('/entries')
-        jsonDate = resp.get_json()
-        assert resp['status'] == 'ok'
-        pdb.set_trace()
+        json_data = resp.get_json()
+        assert json_data['status'] == 'ok'
+        assert len(json_data['visitors']) == 2
+
+    def test_get_signed_out(self):
+        resp = self.client.get(path='/entries', query_string={'isSignedOut': 'true'})
+        json_data = resp.get_json()
+        assert json_data['status'] == 'ok'
+        assert len(json_data['visitors']) == 1
+
+    def test_update_visitor(self):
+        self.visitor_one['isSignedOut'] = True
+        resp = self.client.patch('/entries', json={
+            'visitor': self.visitor_one
+        })
+        json_data = resp.get_json()
+        assert json_data['status'] == 'ok'
+        for visitor in json_data['visitors']:
+            if visitor["firstName"] == self.visitor_one["firstName"]:
+                assert visitor['isSignedOut'] == True
+                return
+        assert False
+
+    def test_new_visitor(self):
+        visitor_three = {
+            'date': None, 
+            'firstName': 'new', 
+            'isSignedOut': False, 
+            'lastName': 'last name', 
+            'notes': 'notes'
+        }
+        resp = self.client.post('/entries', json={
+                'visitor': visitor_three
+        })
+        json_data = resp.get_json()
+        assert json_data['status'] == 'ok'
+        for visitor in json_data['visitors']:
+            if visitor["firstName"] == "new":
+                assert True
+                return
+        assert False
+        

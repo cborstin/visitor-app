@@ -9,6 +9,7 @@ from flask_appbuilder import Model
 from sqlalchemy.ext.hybrid import hybrid_property
 from visitor import Visitor
 from app import app, db
+import pdb
 
 blueprint = Blueprint('app', __name__)
 # TODO: Move this
@@ -31,7 +32,6 @@ def create_visitors():
 
 @blueprint.route('/entries', methods=['GET', 'POST', 'PATCH'])
 def process_entries():
-    # TODO (insert try / except here)
     if request.method == 'POST':
         data = request.get_json(force=True)
         visitor = data["visitor"]
@@ -50,19 +50,12 @@ def get_visitors():
     """
     Searchs through all visitors in database and returns serialized result.
     Possible search parameters:
-        name --> Substring matching any part of name
         signed_out --> Any user matches signed out status
     """
     
-    name = request.args.get("name")
     signed_out = request.args.get("isSignedOut")
     visitors = Visitor.query
-
-    if name and len(name) > 0:
-        name_string = search = "%{}%".format(name)
-        visitors = visitors.filter(Visitor.full_name.like(name_string)) 
     if signed_out == "true":
-        print(signed_out)
         visitors = Visitor.query.filter(Visitor.signed_out == True)
     visitors = visitors.all()
     return get_visitor_response(visitors)
