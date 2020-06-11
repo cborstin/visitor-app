@@ -3,9 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from visitor import Visitor
 from app import app as app_template
 from api import blueprint
-import pdb
-
-
 db = SQLAlchemy()
 
 class MyTest(TestCase):
@@ -43,23 +40,21 @@ class MyTest(TestCase):
             db.session.commit()
         self.client = self.app.test_client()
         self.visitor_one = {
-            'date': None, 
-            'firstName': 
-            'joe', 'id': 1, 
-            'isSignedOut': False, 
-            'lastName': 'last name', 
-            'notes': 'notes'
+            'date': visitor[0].date, 
+            'firstName': visitor[0].firstName, 
+            'id': 1, 
+            'isSignedOut': visitor[0].signed_out, 
+            'lastName': visitor[0].last_name, 
+            'notes': visitor[0].notes
         }
 
         self.visitor_two = {
-            'date': None, 
-            'firstName': 
-            'jane', 
-            'id': 2, 
-            'isSignedOut': False, 
-            'lastName': 
-            'last name', 
-            'notes': 'notes'
+            'date': visitor[1].date, 
+            'firstName': visitor[1].first_name,
+            'id': 1, 
+            'isSignedOut': visitor[1].signed_out, 
+            'lastName': visitor[1].last_name, 
+            'notes': visitor[1].notes
         }
 
 
