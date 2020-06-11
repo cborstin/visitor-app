@@ -1,7 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-from api import blueprint
-
 
 def create_test_app(db):
     app = Flask(__name__)
@@ -23,4 +21,4 @@ def create_production_app(db):
 
 db = SQLAlchemy()
 app = create_production_app(db)
-app.register_blueprint(blueprint)
+

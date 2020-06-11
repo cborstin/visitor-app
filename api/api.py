@@ -8,8 +8,12 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
 from flask_appbuilder import Model
 from sqlalchemy.ext.hybrid import hybrid_property
 from visitor import Visitor
+from app import app, db
 
-blueprint = Blueprint('simple_page', __name__)
+blueprint = Blueprint('app', __name__)
+# TODO: Move this
+db.create_all()
+db.session.commit()
 
 def get_visitor_response(visitors):
     return jsonify(visitors=[visitor.serialize for visitor in visitors], status="ok")
@@ -106,3 +110,7 @@ def update_visitor():
     visitor_to_update.signed_out = signed_out
     db.session.commit() 
     return get_visitor_response(Visitor.query.all())
+
+#TODO (cborsting): Figure out how to move this properly
+app.register_blueprint(blueprint)
+
