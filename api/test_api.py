@@ -31,7 +31,6 @@ class MyTest(TestCase):
 
     def setUp(self):
         self.app = self.create_app()
-        ## create visitors:
         db.session.query(Visitor).delete()
         db.create_all()
         visitors = self.getVisitors()

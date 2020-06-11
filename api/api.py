@@ -1,37 +1,26 @@
-import time
-from flask import request, make_response, Flask, jsonify, Blueprint
+from flask import request, Flask, jsonify, Blueprint
 from flask_sqlalchemy import SQLAlchemy
-# from .sample_data import sample_users
 from sqlalchemy import or_
-# TODO: Move model into its own fileImports for model class
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
-from flask_appbuilder import Model
-from sqlalchemy.ext.hybrid import hybrid_property
 from visitor import Visitor
 from app import app, db
-import pdb
 
 blueprint = Blueprint('app', __name__)
-# TODO: Move this
-db.create_all()
-db.session.commit()
 
 def get_visitor_response(visitors):
     return jsonify(visitors=[visitor.serialize for visitor in visitors], status="ok")
 
 def get_error_response(err_msg):
-    return jsonify(err_msg=err_msg, success=False)
-
-# TODO (cborsting): Figure out the best place to put this sample data, move this to app creation part
-@blueprint.route('/sample_data', methods=['GET'])
-def create_visitors():
-    for visitor in sample_users:
-        new_visitor(visitor.first_name, visitor.last_name, visitor.notes)
-    return get_visitor_response(Visitor.query.all())
-
+    return jsonify(err_msg=err_msg, status="error")
 
 @blueprint.route('/entries', methods=['GET', 'POST', 'PATCH'])
 def process_entries():
+    """
+        Function that proccesses all calls to /entries. Valid methods are:
+            GET --> Returns a list of visitors
+            POST --> Creates a new visitor and returns the updated list of visitors
+            PATCH --> Updates a visitor and returns the updated list of visitors
+    """
+    print(request)
     if request.method == 'POST':
         data = request.get_json(force=True)
         visitor = data["visitor"]
@@ -43,14 +32,13 @@ def process_entries():
         return get_visitors()
     elif request.method == 'PATCH':
         return update_visitor()
-    return 400 # TODO Proper way to return 400
+    return 500
 
 
 def get_visitors():
     """
-    Searchs through all visitors in database and returns serialized result.
-    Possible search parameters:
-        signed_out --> Any user matches signed out status
+        Searches the visitor data store. Allows optional request parameter(isSignedOut)
+        which if set to true, only returns a list of signed out visitors
     """
     
     signed_out = request.args.get("isSignedOut")
@@ -61,7 +49,6 @@ def get_visitors():
     return get_visitor_response(visitors)
 
 def new_visitor(first_name, last_name, notes):
-    # Error handling here for None created
     new_visitor = Visitor(
                     first_name=first_name,
                     last_name=last_name,
@@ -73,16 +60,12 @@ def new_visitor(first_name, last_name, notes):
     return get_visitor_response(Visitor.query.all())
 
 def update_visitor():
-    # Add error handling here
-
-    #TODO: method to parse data
     data = request.get_json(force=True)
     visitor = data["visitor"]
     
     if not visitor:
         return get_error_response("No visitor data received")
 
-    # TODO Figure out why these are returning None
     visitor_id = visitor.get('id', None)
     first_name = visitor.get('firstName', None)
     last_name = visitor.get('lastName', None)
@@ -90,11 +73,10 @@ def update_visitor():
     signed_out = visitor.get('isSignedOut', False)
     date = visitor.get('date', None)
 
-    # TODO (cborsting): Is there a cleaner way to do this?
-    # Error handling here for none found
     visitor_to_update = Visitor.query.filter_by(id=visitor_id).first()
     if not visitor_to_update:
         get_error_response("Visitor id not found")
+
     visitor_to_update.first_name = first_name
     visitor_to_update.last_name = last_name
     visitor_to_update.notes = notes
@@ -103,6 +85,8 @@ def update_visitor():
     db.session.commit() 
     return get_visitor_response(Visitor.query.all())
 
-#TODO (cborsting): Figure out how to move this properly
+
+db.create_all()
+db.session.commit()
 app.register_blueprint(blueprint)
 
