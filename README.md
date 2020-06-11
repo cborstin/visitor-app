@@ -13,3 +13,6 @@ in the second tab, cd api and run sh prod_script.sh
 ## Run tests
 backend sh test_script.sh for backend tests, yarn test for front end tests
 
+## Overview
+Please see wiki page for overview
+
