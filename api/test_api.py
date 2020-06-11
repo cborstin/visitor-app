@@ -1,42 +1,48 @@
-import unittest
-
-from . import create_app, db
-from config import basedir
+from flask_testing import TestCase
+from .app import db, app
 from .visitor import Visitor
-import pytest
 import pdb
-import tempfile
 
 
-class TestConfig(object):
-    DEBUG = True
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///memory:'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    ENV = 'test'
-    TESTING = True
+TEST_SQLALCHEMY_DATABASE_URI = "sqlite:///test.sqlite"
+    
+class MyTest(TestCase):
 
-@pytest.yield_fixture
-def app():
-    def _app(config_class):
-        app = create_app(config_class)
-        app.test_request_context().push()
-
-        if config_class is TestConfig:
-            db.drop_all()
-            db.create_all()
-
+    def create_app(self):
+        app.config['SQLALCHEMY_DATABASE_URI'] = TEST_SQLALCHEMY_DATABASE_URI
         return app
 
-    yield _app
-    db.session.remove()
-    if str(db.engine.url) == TestConfig.SQLALCHEMY_DATABASE_URI:
+    def setUp(self):
+        db.create_all()
+        ## create visitors:
+        visitor = Visitor(
+            first_name='joe', 
+            last_name='last name',
+            notes='notes',
+            date=None,
+            signed_out=False
+        )
+        visitor2 = Visitor(
+            first_name='jane', 
+            last_name='last name',
+            notes='notes',
+            date=None,
+            signed_out=False
+        )
+        db.session.add(visitor)
+        db.session.add(visitor2)
+        db.session.commit()
+        self.client = app.test_client()
+
+    def tearDown(self):
+        db.session.remove()
         db.drop_all()
 
-def test_testing_config(app):
-    app = app(TestingConfig)
-    DB_URL = get_env_db_url("testing")
-    assert app.config["DEBUG"]
-    assert app.config["TESTING"]
-    assert not app.config["PRESERVE_CONTEXT_ON_EXCEPTION"]
-    assert app.config["SQLALCHEMY_DATABASE_URI"] == DB_URL
+    def test_get_all_visitors(self):
+        visitors = Visitor.query.all()
+        assert len(visitors) == 2, 'Expect all visitors to be returned'
+
+    def test_get_all_visitors(self):
+        client = app.test_client()
+        resp = client.get('/entries')
+        pdb.set_trace()
